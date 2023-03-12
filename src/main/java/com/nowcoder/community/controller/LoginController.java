@@ -56,8 +56,8 @@ public class LoginController {
 
     //http://localhost:8080/community/activation/userId/激活码
     @RequestMapping(path = "/activation/#{userId}/#{code}",method = RequestMethod.GET)
-    public String actication(Model model, @PathVariable("userId")) {
-
+    public String actication(Model model, @PathVariable("userId")int userId) {
+        return null;
     }
 
 
