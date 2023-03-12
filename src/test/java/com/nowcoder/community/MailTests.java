@@ -42,7 +42,7 @@ public class MailTests {
         // 使用TemplateEngine模板引擎生成动态网页
         String content = templateEngine.process("/mail/demo",context);
         System.out.println(content);
-        mailClient.sendMail("1515577847@qq.com","html邮箱模块测试",content);
+        mailClient.sendMail("3153483595@qq.com","你的许哥喊你一起加油",content);
     }
 
 }
