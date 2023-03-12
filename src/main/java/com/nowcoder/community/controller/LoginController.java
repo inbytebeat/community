@@ -5,6 +5,7 @@ import com.nowcoder.community.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
@@ -50,6 +51,12 @@ public class LoginController {
             model.addAttribute("emailMsg",map.get("emailMsg"));
             return "site/register";
         }
+
+    }
+
+    //http://localhost:8080/community/activation/userId/激活码
+    @RequestMapping(path = "/activation/#{userId}/#{code}",method = RequestMethod.GET)
+    public String actication(Model model, @PathVariable("userId")) {
 
     }
 

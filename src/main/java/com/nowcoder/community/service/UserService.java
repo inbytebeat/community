@@ -2,6 +2,7 @@ package com.nowcoder.community.service;
 
 import com.nowcoder.community.dao.UserMapper;
 import com.nowcoder.community.entity.User;
+import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.MailClient;
 import org.apache.commons.lang3.StringUtils;
@@ -17,7 +18,7 @@ import java.util.Map;
 import java.util.Random;
 
 @Service
-public class UserService {
+public class UserService implements CommunityConstant {
 
     @Autowired
     private UserMapper userMapper;
@@ -44,6 +45,12 @@ public class UserService {
         return userMapper.selectById(id);
     }
 
+
+    /**
+     * 用户注册方法
+     * @param user 用户从前端输入的注册数据
+     * @return 注册信息提示
+     */
     public Map<String,Object> register(User user) {
         Map<String,Object> map = new HashMap<>();
 
@@ -100,7 +107,7 @@ public class UserService {
         Context context = new Context();
         // 设置模板内容
         context.setVariable("email",user.getEmail());
-        // 用户邮件中的跳转链接
+        // 用户邮件中的跳转链接 例：http://localhost:8080/community/activation/userId/激活码
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
         System.out.println("这是用户信息" + user);
         context.setVariable("url",url);
@@ -109,6 +116,29 @@ public class UserService {
         // 利用邮件引擎发送邮件
         mailClient.sendMail(user.getEmail(),"激活账号",content);
         return map;
+    }
+
+    /**
+     * 用户激活功能
+     * @param userId 准备激活的用户id
+     * @param code 用户输入的激活码
+     * @return 激活状态
+     */
+    public int activation(int userId, String code) {
+        User user = userMapper.selectById(userId);
+        if(user.getStatus() == 1) {
+            // 如果用户的激活状态是1 则表示已激活 则返回重复激活状态码
+            return ACTIVATION_REPEAT;
+        }else {
+            if (user.getActivationCode().equals(code)) {
+                // 如果用户携带的激活码与查询该用户所对应的的激活码相同则说明是用户本人在激活，则进行激活
+                userMapper.updateStatus(userId, 1);
+                return ACTIVATION_SUCCESS;
+            } else {
+                // 如果用户携带的激活码与查询该用户所对应的的激活码不相同则说明不是用户本人在激活，则返回激活失败
+                return ACTIVATION_FAILURE;
+            }
+        }
     }
 
 
