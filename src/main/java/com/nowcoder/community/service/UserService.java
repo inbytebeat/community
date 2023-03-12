@@ -65,7 +65,7 @@ public class UserService {
             return map;
         }
         
-        //验证账号通过用户名
+        //通过用户名验证账号是否存在
         User u = userMapper.selectByName(user.getUsername());
         if(u != null) {
             map.put("usernameMsg","该账户已存在");
@@ -93,12 +93,16 @@ public class UserService {
         user.setHeaderUrl(String.format("http://images.nowcoder.com/head/%dt.png",new Random().nextInt(1000)));
         // 用户创建时间
         user.setCreateTime(new Date());
+        // 将用户存入库中
+        userMapper.insertUser(user);
 
         //使用模板发送激活邮件
         Context context = new Context();
         // 设置模板内容
         context.setVariable("email",user.getEmail());
+        // 用户邮件中的跳转链接
         String url = domain + contextPath + "/activation/" + user.getId() + "/" + user.getActivationCode();
+        System.out.println("这是用户信息" + user);
         context.setVariable("url",url);
         // 选择模板位置，注入内容 然后利用模板生成邮件内容
         String content = templateEngine.process("/mail/activation",context);
