@@ -27,7 +27,7 @@ public class HomeController {
 
     @RequestMapping(path = "/index", method = RequestMethod.GET)
     public String getIndexPage(Model model) {
-        List<DiscussPost> list = discussPostService.findDiscussPosts(1, 1, 10);
+        List<DiscussPost> list = discussPostService.findDiscussPosts(0, 0, 10);
         List<Map<String, Object>> discussPosts = new ArrayList<>();
         if (list != null) {
             for (DiscussPost post : list) {
