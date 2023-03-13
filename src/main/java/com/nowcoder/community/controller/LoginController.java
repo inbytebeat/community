@@ -4,17 +4,21 @@ import com.google.code.kaptcha.Producer;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.imageio.ImageIO;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.awt.image.BufferedImage;
@@ -32,6 +36,10 @@ public class LoginController implements CommunityConstant {
 
     // 创建日志对象
     private static final Logger LOGGER = LoggerFactory.getLogger(LoginController.class);
+
+    //项目路径
+    @Value("${server.servlet.context-path}")
+    private String contextPath;
 
     @Autowired
     private UserService userService;
@@ -80,14 +88,12 @@ public class LoginController implements CommunityConstant {
 
     }
 
-    //http://localhost:8080/community/activation/userId/激活码
-
     /**
-     * 用于用户账号激活
-     * @param model
-     * @param userId
-     * @param code
-     * @return
+     * 用于用户账号激活 激活码:http://localhost:8080/community/activation/userId/激活码
+     * @param model 视图对象 用于返回数据
+     * @param userId 用户id
+     * @param code 激活码
+     * @return 激活结果或是跳转页面地址
      */
     @RequestMapping(path = "/activation/{userId}/{code}",method = RequestMethod.GET)
     public String actication(Model model, @PathVariable("userId")int userId,@PathVariable("code")String code) {
@@ -108,6 +114,11 @@ public class LoginController implements CommunityConstant {
         return "site/operate-result";
     }
 
+    /**
+     * 获取图片验证码
+     * @param response HttpServletResponse
+     * @param session HttpSession
+     */
     @RequestMapping(path = "/kaptcha",method = RequestMethod.GET)
     public void getKaptcha(HttpServletResponse response, HttpSession session) {
         //生成验证码
@@ -125,8 +136,60 @@ public class LoginController implements CommunityConstant {
         } catch (IOException e) {
             LOGGER.error("响应验证码失败:" + e.getMessage());
         }
+    }
 
+    /**
+     * 用户登录控制层
+     * @param username 用户名-前端获取
+     * @param password 用户密码-前端获取
+     * @param code 用户输入的验证码
+     * @param rememberme 记住我选项
+     * @param model 视图 用于返回数据
+     * @param session 用于获取用户刚点击页面时，系统后台所生成的验证码，该验证码在session中保存
+     * @param response 用于客户端向浏览器发送cookie ，该响应保存的是用户登录成功后的ticket 即登陆凭证 使用cookie保存
+     * @return
+     */
+    @RequestMapping(path = "/login",method = RequestMethod.POST)
+    public String login(String username,String password,String code,boolean rememberme, Model model, HttpSession session, HttpServletResponse response) {
+        // 先判断验证码
+        String kaptcha = (String) session.getAttribute("kaptcha");
+        if(StringUtils.isBlank(kaptcha) || StringUtils.isBlank(code) || !kaptcha.equalsIgnoreCase(code)) {
+            //如果用户输入的验证码与后台对不上
+            model.addAttribute("codeMsg","验证码有误");
+            // 返回登录页面
+            return "/site/login";
+        }
+        // 检查用户账号，密码
+        // 判断用户是否勾选记住我 从而设置该用户的等凭证过期时间
+        int expiredSeconds = rememberme ? REMEMBERED_EXPIRED_SECONDS :DEFAULT_EXPIRED_SECONDS;
+        Map<String, Object> map = userService.login(username, password, expiredSeconds);
+        if(map.containsKey("ticket")) {
+            // 如果进行登录业务后，得到的map中有登录凭证信息 则进行登录
+            // 现将从数据库查到的登录凭证写入cookie中 准备使用session发送给浏览器进行登录凭证的保存
+            Cookie cookie = new Cookie("ticket",map.get("ticket").toString());
+            // 设置该cookie的作用范围是整个项目，因为是用户登录的cookie
+            cookie.setPath(contextPath);
+            // 设置该cookie的作用时间范围
+            cookie.setMaxAge(expiredSeconds);
+            // 添加cookie到session中 使用session发送给浏览器进行登录凭证的保存
+            response.addCookie(cookie);
+            // 重定向到首页
+            return "redirect:/index";
+        }else {
+            //如果没有凭证信息 则向model中添加消息错误 查看到底是什么错误引起的登录失败
+            model.addAttribute("usernameMsg", map.get("usernameMsg"));
+            model.addAttribute("passwordMsg", map.get("passwordMsg"));
+            // 返回登录页面
+            return "/site/login";
+        }
 
+    }
+
+    @RequestMapping(path = "/logout",method = RequestMethod.GET)
+    public String logout(@CookieValue("ticket") String ticket) {
+        userService.logout(ticket);
+        // 重定向到登录页面
+        return "redirect:/login";
     }
 
 
