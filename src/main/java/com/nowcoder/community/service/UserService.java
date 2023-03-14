@@ -51,6 +51,15 @@ public class UserService implements CommunityConstant {
         return userMapper.selectById(id);
     }
 
+    /**
+     * 根据ticket查询用户的登陆凭证
+     * @param ticket 登录凭证表示
+     * @return 指定用户的登陆凭证
+     */
+    public LoginTicket findLoginTicket(String ticket){
+        return loginTicketMapper.selectByTicket(ticket);
+    }
+
 
     /**
      * 用户注册方法
