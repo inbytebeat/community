@@ -19,6 +19,7 @@ public class DiscussPostService {
     @Autowired
     private SensitiveFilter sensitiveFilter;
 
+
     public List<DiscussPost> findDiscussPosts(int userId, int offset, int limit) {
         return discussPostMapper.selectDiscussPosts(userId, offset, limit);
     }
@@ -26,6 +27,7 @@ public class DiscussPostService {
     public int findDiscussPostRows(int userId) {
         return discussPostMapper.selectDiscussPostRows(userId);
     }
+
 
     public int addDiscussPost(DiscussPost discussPost) {
         if(discussPost == null) {
@@ -39,6 +41,10 @@ public class DiscussPostService {
         discussPost.setContent(sensitiveFilter.filter(discussPost.getContent()));
         // 最后调用mapper进行新增帖子
         return discussPostMapper.insertDiscussPost(discussPost);
+    }
+
+    public DiscussPost selectDiscussPostById(int id) {
+        return discussPostMapper.selectDiscusPostById(id);
     }
 
 }

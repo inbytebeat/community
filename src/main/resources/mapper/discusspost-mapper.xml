@@ -8,6 +8,10 @@
         id, user_id, title, content, type, status, create_time, comment_count, score
     </sql>
 
+    <sql id="selectOnePostFields">
+        user_id, title, content, type, status, create_time, comment_count, score
+    </sql>
+
     <!--开启主键自动生成-->
     <insert id="insertDiscussPost" useGeneratedKeys="true" keyProperty="id">
         insert into discuss_post (user_id, title, content, type, status, create_time, comment_count, score)
@@ -25,6 +29,12 @@
         limit #{offset}, #{limit}
     </select>
 
+    <select id="selectDiscusPostById" resultType="DiscussPost">
+        select <include refid="selectOnePostFields"/>
+        from discuss_post
+        where id = #{id};
+    </select>
+
     <select id="selectDiscussPostRows" resultType="int">
         select count(id)
         from discuss_post
@@ -33,5 +43,6 @@
             and user_id = #{userId}
         </if>
     </select>
+
 
 </mapper>

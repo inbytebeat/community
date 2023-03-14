@@ -1,7 +1,6 @@
 package com.nowcoder.community.dao;
 
 import com.nowcoder.community.entity.DiscussPost;
-import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -26,6 +25,12 @@ public interface DiscussPostMapper {
      */
     List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
 
+    /**
+     * 根据帖子id查询帖子详情
+     * @param id 帖子id
+     * @return 帖子详情
+     */
+    DiscussPost selectDiscusPostById(int id);
 
 
     /**
