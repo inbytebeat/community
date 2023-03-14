@@ -132,13 +132,19 @@ public class UserController {
     }
 
     @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
-    public String updatePassword(Model model, String password, String newPassword, User user) {
-
-        if(StringUtils.isBlank(password) || StringUtils.isBlank(newPassword)) {
-            model.addAttribute("passwordMsg","请同时输入旧密码和格式正确的新密码");
+    public String updatePassword(Model model, String password, String newPassword, String confirmPassword) {
+        User user  = hostHolder.getUser();
+        if(StringUtils.isBlank(password) || StringUtils.isBlank(newPassword) || StringUtils.isBlank(confirmPassword)) {
+            model.addAttribute("passwordMsg","请同时输入旧密码,格式正确的新密码,以及确认密码");
             return "site/setting";
         }
+        if(!newPassword.equals(confirmPassword)) {
+            model.addAttribute("confirmPasswordMsg","两次密码不一致");
+            return "site/setting";
+        }
+        password = CommunityUtil.md5(password + user.getSalt());
         if(user.getPassword().equals(password)) {
+            newPassword = CommunityUtil.md5(newPassword + user.getSalt());
             userService.updatePassword(user.getId(),newPassword);
         }
         return "redirect:/index";
