@@ -41,7 +41,6 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 // 然后在此次会话中的其他请求中也能够持有用户数据 将用户数据持久化存入对应线程的map中，但是服务器会被多台浏览器访问也就是多个线程，我们需要将每个用户通过ThreadLocal单独存放，进行隔离，防止互相影响，而threadlocal的底层正是通过线程来区分，然后存入各自线程的map中
                 hostHolder.setUser(user);
-                System.out.println(user);
             }
         }
         return true;

@@ -202,11 +202,23 @@ public class UserService implements CommunityConstant {
         return map;
     }
 
+    /**
+     * 使用户登录凭证失效
+     * @param loginTicket 登录凭证的唯一标识
+     */
     public void logout(String loginTicket) {
         // 设置用户的登录凭证状态失效即可
         loginTicketMapper.updateStatus(loginTicket,1);
     }
 
-
+    /**
+     * 修改用户头像
+     * @param userId 用户id
+     * @param headUrl 用户头像url
+     * @return 受影响的行数
+     */
+    public int updateHeader(int userId, String headUrl) {
+        return userMapper.updateHeader(userId,headUrl);
+    }
 
 }
