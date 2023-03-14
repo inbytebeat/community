@@ -8,8 +8,14 @@
         id, user_id, title, content, type, status, create_time, comment_count, score
     </sql>
 
+    <!--开启主键自动生成-->
+    <insert id="insertDiscussPost" useGeneratedKeys="true" keyProperty="id">
+        insert into discuss_post (user_id, title, content, type, status, create_time, comment_count, score)
+        values (#{userId},#{title},#{content},#{type},#{status},#{createTime},#{commentCount},#{score});
+    </insert>
+
     <select id="selectDiscussPosts" resultType="DiscussPost">
-        select <include refid="selectFields"></include>
+        select <include refid="selectFields"/>
         from discuss_post
         where status != 2
         <if test="userId!=0">

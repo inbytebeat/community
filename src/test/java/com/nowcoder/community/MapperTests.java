@@ -107,7 +107,19 @@ public class MapperTests {
         System.out.println(password);
     }
 
-
+    @Test
+    public void insertDiscussPost() {
+        DiscussPost post = new DiscussPost();
+        post.setUserId(101);
+        post.setTitle("惊天大消息");
+        post.setCommentCount(0);
+        post.setType(1);
+        post.setStatus(1);
+        post.setCreateTime(new Date());
+        post.setContent("吴京的国籍竟然是");
+        post.setScore(100);
+        discussPostMapper.insertDiscussPost(post);
+    }
 
 
 
