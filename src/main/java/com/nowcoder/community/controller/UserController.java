@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.util.Map;
 
 /**
  * @Author: XTY~
@@ -128,6 +129,19 @@ public class UserController {
         } catch (IOException e) {
             logger.error("读取头像失败:" + e.getMessage());
         }
+    }
+
+    @RequestMapping(path = "/updatePassword", method = RequestMethod.POST)
+    public String updatePassword(Model model, String password, String newPassword, User user) {
+
+        if(StringUtils.isBlank(password) || StringUtils.isBlank(newPassword)) {
+            model.addAttribute("passwordMsg","请同时输入旧密码和格式正确的新密码");
+            return "site/setting";
+        }
+        if(user.getPassword().equals(password)) {
+            userService.updatePassword(user.getId(),newPassword);
+        }
+        return "redirect:/index";
     }
 
 }
