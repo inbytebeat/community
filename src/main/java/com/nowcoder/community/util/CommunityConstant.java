@@ -32,4 +32,14 @@ public interface CommunityConstant {
      * 记住状态下的登录凭证的超时时间 单位:S
      */
     int REMEMBERED_EXPIRED_SECONDS = 3600 * 24 * 7;
+
+    /**
+     * 实体类型标识：帖子
+     */
+    int ENTITY_TYPE_POST = 1;
+
+    /**
+     * 实体类型标识：评论
+     */
+    int ENTITY_TYPE_COMMENT = 2;
 }

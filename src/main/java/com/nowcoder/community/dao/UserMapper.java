@@ -3,6 +3,9 @@ package com.nowcoder.community.dao;
 import com.nowcoder.community.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
+/**
+ * 用户dao层
+ */
 @Mapper
 public interface UserMapper {
 

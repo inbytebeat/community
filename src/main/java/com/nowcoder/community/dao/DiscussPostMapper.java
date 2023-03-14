@@ -6,6 +6,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+/**
+ * 帖子dao层
+ */
 @Mapper
 public interface DiscussPostMapper {
 
