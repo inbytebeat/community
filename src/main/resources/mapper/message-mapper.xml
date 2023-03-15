@@ -15,6 +15,19 @@
         id, from_id, to_id, conversation_id, content, status, create_time
     </sql>
 
+    <insert id="insertMessage" useGeneratedKeys="true" keyProperty="id">
+        insert into message (from_id, to_id, conversation_id, content, status, create_time)
+        values (#{formId},#{toId},#{conversationId},#{content},#{status},#{creatTime});
+    </insert>
+
+    <update id="updateStatus">
+        update message set status = #{status}
+        where id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
 
     <select id="selectConversations" resultMap="MessageResultMap">
         SELECT <include refid="selectConversationFields"/>

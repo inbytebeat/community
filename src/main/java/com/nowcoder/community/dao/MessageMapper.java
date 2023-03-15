@@ -57,5 +57,19 @@ public interface MessageMapper {
      */
     int selectLetterUnreadCount(int userId, String conversationId);
 
+    /**
+     * 新增私信
+     * @param message 消息
+     * @return 受影响的行数
+     */
+    int insertMessage(Message message);
+
+    /**
+     * 修改消息的状态 设置已读 or 未读 or 删除
+     * @param ids 消息的id合集
+     * @param status 要设置的状态
+     * @return
+     */
+    int updateStatus(List<Integer> ids, int status);
 
 }

@@ -5,17 +5,17 @@ import com.nowcoder.community.entity.Page;
 import com.nowcoder.community.entity.User;
 import com.nowcoder.community.service.MessageService;
 import com.nowcoder.community.service.UserService;
+import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 /**
@@ -34,6 +34,12 @@ public class MessageController {
     @Autowired
     private HostHolder hostHolder;
 
+    /**
+     * 获取当前用户所有对话
+     * @param model 用于存放数据
+     * @param page 用于分页
+     * @return 对话数据
+     */
     @RequestMapping(path = "/letter/list", method = RequestMethod.GET)
     public String getLetterList(Model model, Page page) {
         // 获取当前用户
@@ -66,4 +72,100 @@ public class MessageController {
         model.addAttribute("letterUnreadCount",letterUnreadCount);
         return "/site/letter";
     }
+
+    /**
+     * 用于显示指定对话全部消息-对话详情
+     * @param conversationId 对话id
+     * @param page 用于分页
+     * @param model 用于存储数据
+     * @return 制定对话的全部消息
+     */
+    @RequestMapping(path = "/letter/detail/{conversationId}", method = RequestMethod.GET)
+    public String getLetterDetail(@PathVariable("conversationId") String conversationId, Page page, Model model) {
+        // 设置分页信息
+        page.setLimit(5);
+        page.setPath("/letter/detail/" + conversationId);
+        page.setRows(messageService.findLetterCount(conversationId));
+        List<Message> letterList = messageService.findLetters(conversationId, page.getOffset(), page.getLimit());
+        List<Map<String,Object>> letters = new ArrayList<>();
+        for (Message message : letterList) {
+            HashMap<String, Object> map = new HashMap<>();
+            map.put("letter",message);
+            map.put("fromUser",userService.findUserById(message.getFormId()));
+            letters.add(map);
+        }
+        model.addAttribute("letters",letters);
+
+        // 添加私信目标到model，返回给会话详情页面
+        model.addAttribute("target",getLetterTarget(conversationId));
+
+        // 设置消息已读
+        List<Integer> ids = getLetterIds(letterList);
+        if(!ids.isEmpty()) {
+            messageService.readMessage(ids);
+        }
+        return "/site/letter-detail";
+    }
+
+    /**
+     * 获取一个会话中的所有未读消息id
+     * @param letterList 会话中所有的所有消息
+     * @return 未读消息id
+     */
+    private List<Integer> getLetterIds(List<Message> letterList) {
+        List<Integer> ids = new ArrayList<>();
+        for (Message message : letterList) {
+            if(message.getToId() == hostHolder.getUser().getId() && message.getStatus() == 0) {
+                ids.add(message.getId());
+            }
+        }
+        return ids;
+    }
+
+    /**
+     * 发送私信
+     * @param toName 接收人
+     * @param content 私信内容
+     * @return 结果
+     */
+    @RequestMapping(path = "/letter/send",method = RequestMethod.POST)
+    @ResponseBody
+    public String sendLetter (String toName,  String content) {
+        User target = userService.selectUsrByUserName(toName);
+        if(target == null) {
+            return CommunityUtil.getJSONString(1,"目标用户不存在");
+        }
+        Message message = new Message();
+        message.setFormId(hostHolder.getUser().getId());
+        message.setToId(target.getId());
+        message.setContent(content);
+        if (message.getFormId() > message.getToId()) {
+            message.setConversationId(message.getToId() + "_" + message.getFormId());
+        }else {
+            message.setConversationId(message.getFormId() + "_" + message.getToId());
+        }
+        message.setCreatTime(new Date());
+        messageService.addMessage(message);
+        System.out.println(CommunityUtil.getJSONString(0));
+        return CommunityUtil.getJSONString(0);
+    }
+
+
+    /**
+     * 获取与登录用户对话的对象
+     * @param conversationId 对话id
+     * @return 对话对象
+     */
+    private User getLetterTarget (String conversationId) {
+        String[] ids = conversationId.split("_");
+        int id0 = Integer.parseInt(ids[0]);
+        int id1 = Integer.parseInt(ids[1]);
+        if(id0 == hostHolder.getUser().getId()) {
+            return userService.findUserById(id1);
+        } else {
+            return userService.findUserById(id0);
+        }
+    }
+
+
 }

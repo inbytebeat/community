@@ -43,6 +43,26 @@ public class MessageService {
         return messageMapper.selectLetterUnreadCount(userId, conversationId);
     }
 
+    /**
+     * 新增私信
+     * @param message 消息
+     * @return 受影响的消息数
+     */
+    public int addMessage(Message message) {
+        message.setContent(HtmlUtils.htmlEscape(message.getContent()));
+        message.setContent(sensitiveFilter.filter(message.getContent()));
+        return messageMapper.insertMessage(message);
+    }
+
+    /**
+     * 设置消息列表中的消息状态为已读
+     * @param ids 消息列表中的ids
+     * @return 受影响的消息数
+     */
+    public int readMessage(List<Integer> ids) {
+        return messageMapper.updateStatus(ids,1);
+    }
+
 
 
 }
