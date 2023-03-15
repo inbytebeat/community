@@ -27,7 +27,7 @@ public class Comment {
     private int entityType;
 
     /**
-     * 表示该评论所评论的对象id,比如可以是被评论的帖子id
+     * 表示该评论所评论的帖子id
      */
     private int entityId;
 

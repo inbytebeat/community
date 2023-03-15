@@ -45,6 +45,12 @@ public class DiscussController implements CommunityConstant {
     @Autowired
     private HostHolder hostHolder;
 
+    /**
+     * 新增帖子
+     * @param title 帖子标题
+     * @param content 帖子内容
+     * @return 操作响应
+     */
     @RequestMapping(path = "add", method = RequestMethod.POST)
     @ResponseBody
     public String addDiscussPost(String title, String content) {

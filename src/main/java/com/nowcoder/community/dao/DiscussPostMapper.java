@@ -45,4 +45,12 @@ public interface DiscussPostMapper {
      */
     int selectDiscussPostRows(@Param("userId") int userId);
 
+    /**
+     * 更新帖子的评论数量
+     * @param id 帖子id
+     * @param commentCount 帖子的评论数量
+     * @return 新的帖子的评论数量
+     */
+    int updateCommentCount(int id, int commentCount);
+
 }

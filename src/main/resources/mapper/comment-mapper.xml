@@ -13,8 +13,17 @@
     </resultMap>
 
     <sql id="selectCommentFields">
+        id, user_id, entity_type, entity_id, target_id, content, status, create_time
+    </sql>
+
+    <sql id="insertFields">
         user_id, entity_type, entity_id, target_id, content, status, create_time
     </sql>
+
+    <insert id="insertComment" useGeneratedKeys="true" keyProperty="id">
+        insert into comment (user_id, entity_type, entity_id, target_id, content, status, create_time)
+        values (#{userId},#{entityType},#{entityId},#{targetId},#{content},#{status},#{createTime});
+    </insert>
 
     <select id="selectCommentByEntity" resultMap="CommentResultMap">
         select <include refid="selectCommentFields"/>

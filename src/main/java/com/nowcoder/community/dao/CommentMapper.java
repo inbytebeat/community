@@ -30,4 +30,11 @@ public interface CommentMapper {
      * @return 查询的帖子条数
      */
     int selectCommentCountByEntity(int entityType, int entityId);
+
+    /**
+     * 新增评论
+     * @param comment 评论数据
+     * @return 影响的行数
+     */
+    int insertComment(Comment comment);
 }
