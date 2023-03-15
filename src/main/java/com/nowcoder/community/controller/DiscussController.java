@@ -97,11 +97,11 @@ public class DiscussController implements CommunityConstant {
                 // 向评论VO中 存入评论
                 commentVo.put("comment",comment);
                 // 向评论VO中，存入发出评论的用户数据
-                commentVo.put("user",userService.findUserById(comment.getId()));
+                commentVo.put("user",userService.findUserById(comment.getUserId()));
                 // 评论的回复列表(评论的评论)
                 List<Comment> replaceList = commentService.selectCommentByEntity(ENTITY_TYPE_COMMENT, comment.getId(), 0, Integer.MAX_VALUE);
                 // 回复Vo列表
-                List<Map<String, Object>> replaceVoList = new ArrayList<>();
+                List<Map<String, Object>> replyVoList = new ArrayList<>();
                 if(replaceList != null) {
                     for (Comment reply:replaceList) {
                         Map<String,Object>  replyVo = new HashMap<>();
@@ -112,10 +112,10 @@ public class DiscussController implements CommunityConstant {
                         // 获取被回复的目标
                         User target = reply.getTargetId() == 0 ? null :userService.findUserById(reply.getTargetId());
                         replyVo.put("target",target);
-                        replaceVoList.add(replyVo);
+                        replyVoList.add(replyVo);
                     }
                 }
-                commentVo.put("replys",replaceVoList);
+                commentVo.put("replys",replyVoList);
                 // 回复数量
                 int replyCount = commentService.selectCommentCountByEntity(ENTITY_TYPE_COMMENT, comment.getId());
                 commentVo.put("replyCount",replyCount);
