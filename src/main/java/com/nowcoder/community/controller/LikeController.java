@@ -27,10 +27,10 @@ public class LikeController {
 
     @RequestMapping(path = "/like",method = RequestMethod.POST) // 点赞需要传入一些信息，我们使用post
     @ResponseBody // 因为是异步请求
-    public String like(int entityType, int entityId) {
+    public String like(int entityType, int entityId, int entityUserId) {
         User user = hostHolder.getUser();
         // 点赞
-        likeService.like(user.getId(),entityType,entityId);
+        likeService.like(user.getId(),entityType,entityId, entityUserId);
         // 点赞状态
         int status = likeService.findEntityLikeStatus(user.getId(), entityType, entityId);
         // 点赞数量

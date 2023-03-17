@@ -24,7 +24,7 @@ public class RedisKeyUtil {
         return  PREFIX_ENTITY_LIKE + SPLIT + entityType + SPLIT + entityId;
     }
 
-    private static String geyUserLikeKey(int userId) {
+    public static String geyUserLikeKey(int userId) {
         return PREFIX_USER_LIKE + SPLIT + userId;
     }
 

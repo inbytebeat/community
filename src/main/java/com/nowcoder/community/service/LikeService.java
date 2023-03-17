@@ -20,30 +20,46 @@ public class LikeService {
     @Autowired
     private RedisTemplate redisTemplate;
 
+    @Autowired
+    private LikeService likeService;
+
     /**
      * 点赞
      * @param userId 点赞者
      * @param entityType 实体类型
      * @param entityId 实体id
      */
-    public void like(int userId, int entityType, int entityId) {
-        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
-        // 判断是否已经点过赞
-        Boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
-        if(isMember) {
-            // 将点赞者从set中移除
-            redisTemplate.opsForSet().remove(entityLikeKey,userId);
-        }else {
-            // 添加点赞者
-            redisTemplate.opsForSet().add(entityLikeKey,userId);
-        }
-//        redisTemplate.execute(new SessionCallback() {
-//            @Override
-//            public Object execute(RedisOperations redisOperations) throws DataAccessException {
-//                String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
-//                String userLikeKet4y = RedisKeyUtil.getEntityLikeKey()
-//            }
-//        });
+    public void like(int userId, int entityType, int entityId, int entityUerId) {
+        redisTemplate.execute(new SessionCallback() {
+            @Override
+            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+                String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
+                String userLikeKey = RedisKeyUtil.geyUserLikeKey(entityUerId);
+                // 判断是否已经点过赞
+                Boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
+                if(isMember) {
+                    // 将点赞者从set中移除
+                    redisOperations.opsForSet().remove(entityLikeKey,userId);
+                    redisOperations.opsForValue().decrement(userLikeKey);
+                }else {
+                    // 添加点赞者
+                    redisOperations.opsForSet().add(entityLikeKey,userId);
+                    redisOperations.opsForValue().increment(userLikeKey);
+                }
+                return null;
+            }
+        });
+    }
+
+    /**
+     * 查询某个用户收到的赞
+     * @param userId
+     * @return
+     */
+    public int findUserLikeCount(int userId) {
+        String userLikeKey = RedisKeyUtil.geyUserLikeKey(userId);
+        Integer count = (Integer)redisTemplate.opsForValue().get(userLikeKey);
+        return count == null ? 0 : count.intValue();
     }
 
     /**
