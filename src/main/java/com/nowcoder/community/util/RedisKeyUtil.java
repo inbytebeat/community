@@ -9,6 +9,7 @@ package com.nowcoder.community.util;
 public class RedisKeyUtil {
     private static final String SPLIT = ":";
     private static final String PREFIX_ENTITY_LIKE = "like:entity";
+    private static final String PREFIX_USER_LIKE = "like:user";
 
     // 某个实体的赞 包含了帖子以及评论
     // like:entity:entityType:entityId -> set(userId) - 将为之点赞的用户的id存入set集合中
@@ -21,6 +22,10 @@ public class RedisKeyUtil {
      */
     public static String getEntityLikeKey(int entityType, int entityId) {
         return  PREFIX_ENTITY_LIKE + SPLIT + entityType + SPLIT + entityId;
+    }
+
+    private static String geyUserLikeKey(int userId) {
+        return PREFIX_USER_LIKE + SPLIT + userId;
     }
 
 

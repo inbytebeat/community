@@ -24,7 +24,7 @@ import java.util.*;
 /**
  * @Author: XTY~
  * @CreateTime: 14/3/2023 下午6:33
- * @Description:
+ * @Description: 帖子控制层
  */
 
 @Controller
