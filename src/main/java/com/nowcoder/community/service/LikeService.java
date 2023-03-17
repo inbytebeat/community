@@ -27,23 +27,23 @@ public class LikeService {
      * @param entityId 实体id
      */
     public void like(int userId, int entityType, int entityId) {
-//        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
-//        // 判断是否已经点过赞
-//        Boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
-//        if(isMember) {
-//            // 将点赞者从set中移除
-//            redisTemplate.opsForSet().remove(entityLikeKey,userId);
-//        }else {
-//            // 添加点赞者
-//            redisTemplate.opsForSet().add(entityLikeKey,userId);
-//        }
-        redisTemplate.execute(new SessionCallback() {
-            @Override
-            public Object execute(RedisOperations redisOperations) throws DataAccessException {
-                String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
-                String userLikeKet4y = RedisKeyUtil.getEntityLikeKey()
-            }
-        });
+        String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
+        // 判断是否已经点过赞
+        Boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
+        if(isMember) {
+            // 将点赞者从set中移除
+            redisTemplate.opsForSet().remove(entityLikeKey,userId);
+        }else {
+            // 添加点赞者
+            redisTemplate.opsForSet().add(entityLikeKey,userId);
+        }
+//        redisTemplate.execute(new SessionCallback() {
+//            @Override
+//            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+//                String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
+//                String userLikeKet4y = RedisKeyUtil.getEntityLikeKey()
+//            }
+//        });
     }
 
     /**
