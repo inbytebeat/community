@@ -36,7 +36,9 @@ public class LikeService {
                 String entityLikeKey = RedisKeyUtil.getEntityLikeKey(entityType,entityId);
                 String userLikeKey = RedisKeyUtil.geyUserLikeKey(entityUerId);
                 // 判断是否已经点过赞
-                Boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
+                boolean isMember = redisTemplate.opsForSet().isMember(entityLikeKey, userId);
+
+                redisOperations.multi();
                 if(isMember) {
                     // 将点赞者从set中移除
                     redisOperations.opsForSet().remove(entityLikeKey,userId);
@@ -46,13 +48,13 @@ public class LikeService {
                     redisOperations.opsForSet().add(entityLikeKey,userId);
                     redisOperations.opsForValue().increment(userLikeKey);
                 }
-                return null;
+                return redisOperations.exec();
             }
         });
     }
 
     /**
-     * 查询某个用户收到的赞
+     * 用户收到的赞
      * @param userId
      * @return
      */
