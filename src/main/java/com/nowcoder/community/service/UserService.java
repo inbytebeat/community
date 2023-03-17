@@ -8,9 +8,11 @@ import com.nowcoder.community.entity.User;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.MailClient;
+import com.nowcoder.community.util.RedisKeyUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
@@ -26,14 +28,17 @@ public class UserService implements CommunityConstant {
     @Autowired
     private UserMapper userMapper;
 
-    @Autowired
-    private LoginTicketMapper loginTicketMapper;
+//    @Autowired
+//    private LoginTicketMapper loginTicketMapper;
 
     @Autowired
     private MailClient mailClient;
 
     @Autowired
     private TemplateEngine templateEngine;
+
+    @Autowired
+    private RedisTemplate redisTemplate;
 
     /**
      * 项目域名
@@ -57,7 +62,9 @@ public class UserService implements CommunityConstant {
      * @return 指定用户的登陆凭证
      */
     public LoginTicket findLoginTicket(String ticket){
-        return loginTicketMapper.selectByTicket(ticket);
+//        return loginTicketMapper.selectByTicket(ticket);
+        String redisKey = RedisKeyUtil.getTicketKey(ticket);
+        return (LoginTicket) redisTemplate.opsForValue().get(redisKey);
     }
 
 
@@ -197,7 +204,10 @@ public class UserService implements CommunityConstant {
         loginTicket.setTicket(CommunityUtil.generateUUID());
         loginTicket.setStatus(0);
         loginTicket.setExpired(new Date(System.currentTimeMillis() + expiredSeconds * 1000));
-        loginTicketMapper.insertLoginTicket(loginTicket);
+//        loginTicketMapper.insertLoginTicket(loginTicket);
+        String redisKey = RedisKeyUtil.getTicketKey(loginTicket.getTicket());
+        // 将登陆凭证存入redis中 redis会自动的将对象序列化成为一个JSON格式的字符串
+        redisTemplate.opsForValue().set(redisKey, loginTicket);
         map.put("ticket",loginTicket.getTicket());
         return map;
     }
@@ -208,7 +218,14 @@ public class UserService implements CommunityConstant {
      */
     public void logout(String loginTicket) {
         // 设置用户的登录凭证状态失效即可
-        loginTicketMapper.updateStatus(loginTicket,1);
+//        loginTicketMapper.updateStatus(loginTicket,1);
+        String redisKey = RedisKeyUtil.getTicketKey(loginTicket);
+        // 从redis中取出登陆凭证对象数据 然后将其登录凭证状态改为失效即可
+        LoginTicket ticket = (LoginTicket) redisTemplate.opsForValue().get(redisKey);
+        ticket.setStatus(1);
+        // 然后再将登陆凭证存回redis中 完成登录凭证状态的修改
+        redisTemplate.opsForValue().set(redisKey,loginTicket);
+
     }
 
     /**

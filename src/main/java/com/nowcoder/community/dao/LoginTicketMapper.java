@@ -9,6 +9,7 @@ import org.apache.ibatis.annotations.Mapper;
  * @Description: 管理用户登录凭证接口
  */
 @Mapper
+@Deprecated
 public interface LoginTicketMapper {
 
     /**
