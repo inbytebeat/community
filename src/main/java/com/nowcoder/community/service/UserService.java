@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserService implements CommunityConstant {
@@ -52,8 +53,18 @@ public class UserService implements CommunityConstant {
     @Value("${server.servlet.context-path}")
     private String contextPath;
 
+    /**
+     * 根据id查询用户
+     * @param id 用户id
+     * @return 用户数据
+     */
     public User findUserById(int id) {
-        return userMapper.selectById(id);
+//        return userMapper.selectById(id);
+        User user = getCache(id);
+        if(user == null) {
+            user = initCache(id);
+        }
+        return user;
     }
 
     /**
@@ -155,6 +166,7 @@ public class UserService implements CommunityConstant {
             if (user.getActivationCode().equals(code)) {
                 // 如果用户携带的激活码与查询该用户所对应的的激活码相同则说明是用户本人在激活，则进行激活
                 userMapper.updateStatus(userId, 1);
+                clearCache(userId);
                 return ACTIVATION_SUCCESS;
             } else {
                 // 如果用户携带的激活码与查询该用户所对应的的激活码不相同则说明不是用户本人在激活，则返回激活失败
@@ -235,7 +247,9 @@ public class UserService implements CommunityConstant {
      * @return 受影响的行数
      */
     public int updateHeader(int userId, String headUrl) {
-        return userMapper.updateHeader(userId,headUrl);
+        int rows = userMapper.updateHeader(userId,headUrl);
+        clearCache(userId);
+        return rows;
     }
 
     /**
@@ -245,7 +259,9 @@ public class UserService implements CommunityConstant {
      * @return 受影响的行数
      */
     public int updatePassword(int userId, String newPassword) {
-        return userMapper.updatePassword(userId,newPassword);
+        int rows = userMapper.updatePassword(userId,newPassword);
+        clearCache(userId);
+        return rows;
     }
 
     /**
@@ -256,5 +272,37 @@ public class UserService implements CommunityConstant {
     public User selectUsrByUserName(String userName) {
         return userMapper.selectByName(userName);
     }
+
+    /**
+     * 使用redis查询用户数据 当查询用户数据时，优先从缓存中取值
+     * @param userId 用户id
+     * @return 用户数据
+     */
+    private User getCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        return (User) redisTemplate.opsForValue().get(redisKey);
+    }
+
+    /**
+     * 当从缓存中取不到数据时，这时来数据库中查询用户数据，然后缓存到redis中
+     * @param userId 用户id
+     * @return 用户数据
+     */
+    private User initCache(int userId) {
+        User user = userMapper.selectById(userId);
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.opsForValue().set(redisKey, user, 3600, TimeUnit.SECONDS);
+        return user;
+    }
+
+    /**
+     * 数据变更时，直接清除缓存数据
+     * @param userId 用户id
+     */
+    private void clearCache(int userId) {
+        String redisKey = RedisKeyUtil.getUserKey(userId);
+        redisTemplate.delete(redisKey);
+    }
+
 
 }
