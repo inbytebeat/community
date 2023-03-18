@@ -63,6 +63,34 @@ public class MessageService {
         return messageMapper.updateStatus(ids,1);
     }
 
+    /**
+     * 返回该主题最新的通知
+     * @param userId 用户id
+     * @param topic 话题类型
+     * @return 通知
+     */
+    public Message findLastedNotice(int userId, String topic) {
+        return messageMapper.selectLastedNotice(userId,topic);
+    }
 
+    /**
+     * 返回某个主题通知的总数目
+     * @param userId 用户id
+     * @param topic 主题类型
+     * @return 主题通指数
+     */
+    public int findNoticeCount(int userId, String topic) {
+        return messageMapper.selectNoticeCount(userId,topic);
+    }
+
+    /**
+     * 查询指定主题未读通知数，也可以查询所有主题未读通知数，只要topic为空即可
+     * @param userId 用户id
+     * @param topic 主题
+     * @return 未读通知数
+     */
+    public int findNoticeUnreadCount(int userId, String topic) {
+        return messageMapper.selectNoticeUnreadCount(userId,topic);
+    }
 
 }
