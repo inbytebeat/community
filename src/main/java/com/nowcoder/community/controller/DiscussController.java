@@ -166,4 +166,65 @@ public class DiscussController implements CommunityConstant {
         return "/site/discuss-detail";
     }
 
+    /**
+     * 置顶帖子
+     * @param id 帖子id
+     * @return 操作结果
+     */
+    @RequestMapping(path = "/top", method = RequestMethod.POST)
+    @ResponseBody
+    public String setTop(int id) {
+        discussPostService.updateType(id, 1);
+        User user = hostHolder.getUser();
+        // 触发修改事件 将修改的帖子数据添加到elactisearch服务器中
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    /**
+     * 加精帖子
+     * @param id 帖子id
+     * @return 操作结果
+     */
+    @RequestMapping(path = "/wonderful", method = RequestMethod.POST)
+    @ResponseBody
+    public String updateStatus(int id) {
+        discussPostService.updateStatus(id, 1);
+        // 触发修改事件 将修改的帖子数据添加到elactisearch服务器中
+        Event event = new Event()
+                .setTopic(TOPIC_PUBLISH)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
+    /**
+     * 删除帖子
+     * @param id 帖子id
+     * @return 操作结果
+     */
+    @RequestMapping(path = "/delete", method = RequestMethod.POST)
+    @ResponseBody
+    public String setDelete(int id) {
+        discussPostService.updateStatus(id, 2);
+        // 触发删帖事件 将修改的帖子数据添加到elactisearch服务器中
+        Event event = new Event()
+                .setTopic(TOPIC_DELETE)
+                .setUserId(hostHolder.getUser().getId())
+                .setEntityType(ENTITY_TYPE_POST)
+                .setEntityId(id);
+        eventProducer.fireEvent(event);
+
+        return CommunityUtil.getJSONString(0);
+    }
+
 }

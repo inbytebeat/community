@@ -53,4 +53,20 @@ public interface DiscussPostMapper {
      */
     int updateCommentCount(int id, int commentCount);
 
+    /**
+     * 修改帖子类型
+     * @param id 帖子id
+     * @param type 帖子要修改成为的类型
+     * @return 操作结果
+     */
+    int updateType(int id, int type);
+
+    /**
+     * 修改帖子状态
+     * @param id 帖子id
+     * @param status 帖子状态
+     * @return 操作结果
+     */
+    int updateStatus(int id, int status);
+
 }
