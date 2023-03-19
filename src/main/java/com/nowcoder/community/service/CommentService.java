@@ -35,7 +35,7 @@ public class CommentService implements CommunityConstant {
      * 根据实体类型查询帖子评论
      * @param entityType 实体类型编号
      * @param entityId 实体类id
-     * @param offset 当前页码
+     * @param offset 索引
      * @param limit 当前页大小
      * @return 查询的帖子数据
      */

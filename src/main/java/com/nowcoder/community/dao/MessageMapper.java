@@ -18,7 +18,7 @@ public interface MessageMapper {
      * 查询当前用户的会话列表，每个会话只返回最新的一条私信（有可能是用户发送的，也有可能是用户接收的）
      * 实现思路：先查询该用户每个对话中最新消息的id，然后拿着id去查询消息，就得到了当前用户每个对话中的最新消息
      * @param userId 当前用户id
-     * @param offset 当前页
+     * @param offset 索引
      * @param limit 页大小
      * @return 当前用户每个对话中的最新消息
      */
@@ -35,7 +35,7 @@ public interface MessageMapper {
     /**
      * 查询某个会话所包含的所有消息
      * @param conversationId 会话id
-     * @param offset 当前页
+     * @param offset 索引
      * @param limit 页面大小
      * @return 指定会话所包含的所有消息
      */
@@ -103,7 +103,7 @@ public interface MessageMapper {
      * 查询用户特定主题所包含的通知列表
      * @param userId 用户id
      * @param topic 主题类型
-     * @param offset 当前页
+     * @param offset 索引
      * @param limit 页面大小
      * @return 特定主题所包含的通知列表
      */

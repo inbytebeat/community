@@ -97,7 +97,7 @@ public class MessageService {
      * 查询用户特定话题的所有通知
      * @param userId 用户id
      * @param topic 话题类型
-     * @param offset 当前页
+     * @param offset 索引
      * @param limit 页大小
      * @return 用户特定话题的所有通知
      */

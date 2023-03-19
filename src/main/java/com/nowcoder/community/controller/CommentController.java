@@ -61,6 +61,16 @@ public class CommentController implements CommunityConstant {
         }
         // 处理事件
         eventProducer.fireEvent(event);
+        // 如果评论的类型是贴子，就触发发帖事件
+        if(comment.getEntityType() == ENTITY_TYPE_POST) {
+            // 触发发帖事件
+             event = new Event()
+                    .setTopic(TOPIC_PUBLISH)
+                    .setUserId(comment.getUserId())
+                    .setEntityType(ENTITY_TYPE_POST)
+                    .setEntityId(discussPostId);
+            eventProducer.fireEvent(event);
+        }
         // 点击回帖 后台逻辑处理完之后 重定向到该帖子的详情页面中
         return "redirect:/discuss/detail/" + discussPostId;
     }

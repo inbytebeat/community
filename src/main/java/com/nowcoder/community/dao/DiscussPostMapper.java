@@ -22,7 +22,7 @@ public interface DiscussPostMapper {
     /**
      * 查询所有帖子数据
      * @param userId 用户id
-     * @param offset 当前页
+     * @param offset 索引
      * @param limit 每页容量
      * @return 分页后的贴子数据
      */
