@@ -6,6 +6,10 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CookieUtil;
 import com.nowcoder.community.util.HostHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
@@ -41,6 +45,11 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
                 User user = userService.findUserById(loginTicket.getUserId());
                 // 然后在此次会话中的其他请求中也能够持有用户数据 将用户数据持久化存入对应线程的map中，但是服务器会被多台浏览器访问也就是多个线程，我们需要将每个用户通过ThreadLocal单独存放，进行隔离，防止互相影响，而threadlocal的底层正是通过线程来区分，然后存入各自线程的map中
                 hostHolder.setUser(user);
+                // 构建用户认证的结果，并且存入SecurityContext,以便于security授权
+                // 构建用户认证的结果,并存入SecurityContext,以便于Security进行授权.
+                Authentication authentication = new UsernamePasswordAuthenticationToken(
+                        user, user.getPassword(), userService.getAuthorities(user.getId()));
+                SecurityContextHolder.setContext(new SecurityContextImpl(authentication));
             }
         }
         return true;
@@ -59,5 +68,6 @@ public class LoginTicketInterceptor implements HandlerInterceptor {
     public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
         // 返回拦截器说明请求已经执行完毕 则将ThreadLocal中的数据清理
         hostHolder.clear();
+        SecurityContextHolder.clearContext();
     }
 }
