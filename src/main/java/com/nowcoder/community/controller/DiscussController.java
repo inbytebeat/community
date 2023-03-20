@@ -9,7 +9,9 @@ import com.nowcoder.community.service.UserService;
 import com.nowcoder.community.util.CommunityConstant;
 import com.nowcoder.community.util.CommunityUtil;
 import com.nowcoder.community.util.HostHolder;
+import com.nowcoder.community.util.RedisKeyUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -50,6 +52,9 @@ public class DiscussController implements CommunityConstant {
     @Autowired
     private HostHolder hostHolder;
 
+    @Autowired
+    private RedisTemplate redisTemplate;
+
     /**
      * 新增帖子
      * @param title 帖子标题
@@ -77,6 +82,10 @@ public class DiscussController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(post.getId());
         eventProducer.fireEvent(event);
+        // 计算帖子分数，现将新帖放入redis中，即算分的缓存中，同时使用redis的set来防止短时间内多次点赞 导致缓存中有多个该条数据，从而计算时影响效率 比如缓存中是:A B A C A，这样就要计算三次A的分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, post.getId());
+
         return CommunityUtil.getJSONString(0, "帖子发布成功");
     }
 
@@ -203,6 +212,10 @@ public class DiscussController implements CommunityConstant {
                 .setEntityType(ENTITY_TYPE_POST)
                 .setEntityId(id);
         eventProducer.fireEvent(event);
+
+        // 计算帖子分数，现将新帖放入redis中，即算分的缓存中，同时使用redis的set来防止短时间内多次点赞 导致缓存中有多个该条数据，从而计算时影响效率 比如缓存中是:A B A C A，这样就要计算三次A的分数
+        String redisKey = RedisKeyUtil.getPostScoreKey();
+        redisTemplate.opsForSet().add(redisKey, id);
 
         return CommunityUtil.getJSONString(0);
     }

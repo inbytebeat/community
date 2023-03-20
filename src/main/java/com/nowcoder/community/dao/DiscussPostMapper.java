@@ -24,9 +24,10 @@ public interface DiscussPostMapper {
      * @param userId 用户id
      * @param offset 索引
      * @param limit 每页容量
+     * @param orderMode  默认为0，按照首页规则排序 如果为1则按照热度排序
      * @return 分页后的贴子数据
      */
-    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit);
+    List<DiscussPost> selectDiscussPosts(int userId, int offset, int limit, int orderMode);
 
     /**
      * 根据帖子id查询帖子详情
@@ -68,5 +69,13 @@ public interface DiscussPostMapper {
      * @return 操作结果
      */
     int updateStatus(int id, int status);
+
+    /**
+     * 更新贴子分数
+     * @param id 贴子id
+     * @param score 贴子分数
+     * @return 更新结果
+     */
+    int updatePostScore(int id, double score);
 
 }

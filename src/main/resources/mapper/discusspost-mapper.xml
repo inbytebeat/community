@@ -36,6 +36,12 @@
         where id = #{id};
     </update>
 
+    <update id="updatePostScore">
+        update discuss_post
+        set score = #{score}
+        where id = #{id}
+    </update>
+
     <select id="selectDiscussPosts" resultType="DiscussPost">
         select <include refid="selectFields"/>
         from discuss_post
@@ -43,7 +49,15 @@
         <if test="userId!=0">
             and user_id = #{userId}
         </if>
-        order by type desc, create_time desc
+
+        <if test="orderMode == 0">
+            order by type desc, create_time desc
+        </if>
+
+        <if test="orderMode == 1">
+            order by type desc, score desc, create_time desc
+        </if>
+
         limit #{offset}, #{limit}
     </select>
 
