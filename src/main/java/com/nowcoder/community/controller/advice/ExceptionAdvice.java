@@ -22,7 +22,7 @@ import java.io.PrintWriter;
 public class ExceptionAdvice {
 
     // 日志组件实例化
-    private  static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
+    private static final Logger logger = LoggerFactory.getLogger(ExceptionAdvice.class);
 
     @ExceptionHandler({Exception.class})
     public void handleException(Exception e, HttpServletRequest request, HttpServletResponse response) throws IOException {

@@ -22,13 +22,14 @@ import java.util.Date;
  */
 @Component
 @Aspect
-public class ServiceLogAspect {
+public class  ServiceLogAspect {
     private static final Logger logger = LoggerFactory.getLogger(ServiceLogAspect.class);
 
-    //创建切面
+    // 创建切面
     @Pointcut("execution(* com.nowcoder.community.service.*.*(..))")
     public void pointcut(){}
 
+    // 通知方法
     @Before("pointcut()")
     public void before(JoinPoint joinPoint) {
         // 用户[] 在[xxx]，访问了[com.nowcoder.community.service.xxx()]

@@ -19,9 +19,6 @@ public class WebMvcConfig implements WebMvcConfigurer {
     @Autowired
     private LoginTicketInterceptor loginTicketInterceptor;
 
-    //@Autowired
-    //private LoginRequiredInterceptor loginRequiredInterceptor;
-
     @Autowired
     private MessageInterceptor messageInterceptor;
 
